@@ -202,11 +202,11 @@ index=ftp_security "LOGIN FAILED"
 ## 📁 Project Structure
 
 ```
-FTP-Log-Analysis-Splunk/
+Splunk-Log-Analysis-Splunk/
 │
 ├── README.md
 ├── sample_logs/
-│   └── ftp_logs.log
+│   └── brute force.log
 │
 ├── spl_queries/
 │   ├── failed_logins.spl

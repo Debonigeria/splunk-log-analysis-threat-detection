@@ -1,0 +1,1 @@
+index=main ("FILE DOWNLOADED" OR "FILE UPLOAD" OR "FILE DELETION") rex "user = (?<user>/5+)" | rex "file = (?<file>/5+)" | stats count by user file

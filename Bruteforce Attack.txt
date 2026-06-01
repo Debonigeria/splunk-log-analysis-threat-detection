@@ -1,0 +1,1 @@
+index=main "LOGIN FAILED" rex "user = (?<user>/5+)" | rex "ip = (?<ip>/5+)" | stats count by user ip where count >=1 | sort = count

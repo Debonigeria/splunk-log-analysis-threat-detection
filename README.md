@@ -34,9 +34,10 @@ The project uses FTP server log files containing:
 
 ### Example Log Entry
 
-2025-01-15 10:25:32 192.168.1.50 USER admin LOGIN FAILED
-2025-01-15 10:26:10 192.168.1.50 USER admin LOGIN FAILED
-2025-01-15 10:27:01 192.168.1.50 USER admin LOGIN SUCCESS
+2026-04-05 10:05:11 LOGIN FAILED user=admin ip=192.168.1.10
+2026-04-05 10:06:15 LOGIN SUCCESS user=john ip=192.168.1.15
+2026-04-05 10:07:18 FILE UPLOAD user=john file=project2.zip
+2026-04-05 10:07:18 FILE DOWNLOAD user=sarah file=report.pdf
 
 ---
 
@@ -63,7 +64,7 @@ The project uses FTP server log files containing:
 ### 1. Failed Login Attempts
 Detect repeated authentication failures.
 ```spl
-index=ftp_security "LOGIN FAILED"
+index=main "LOGIN FAILED"
 | stats count by src_ip
 | sort - count
 ````
@@ -75,7 +76,7 @@ index=ftp_security "LOGIN FAILED"
 Identify IPs generating multiple failed logins.
 
 ```spl
-index=ftp_security "LOGIN FAILED"
+index=main "LOGIN FAILED"
 | stats count by src_ip
 | where count > 10
 ```
@@ -87,7 +88,7 @@ index=ftp_security "LOGIN FAILED"
 Detect potential account compromise.
 
 ```spl
-index=ftp_security
+index=main
 ("LOGIN FAILED" OR "LOGIN SUCCESS")
 | stats 
     count(eval(searchmatch("LOGIN FAILED"))) as failed_attempts
@@ -103,7 +104,7 @@ index=ftp_security
 Monitor large or excessive file uploads.
 
 ```spl
-index=ftp_security action=upload
+index=main action=upload
 | stats count sum(file_size) as total_upload_size by username
 | sort - total_upload_size
 ```
@@ -113,7 +114,7 @@ index=ftp_security action=upload
 ### 5. Access from Suspicious IP Addresses
 
 ```spl
-index=ftp_security
+index=main
 | stats count by src_ip
 | lookup suspicious_ips ip as src_ip OUTPUT threat_level
 | where threat_level="High"
@@ -138,14 +139,14 @@ index=ftp_security
 ### Failed Logins by IP
 
 ```spl
-index=ftp_security "LOGIN FAILED"
+index=main "LOGIN FAILED"
 | timechart count by src_ip
 ```
 
 ### Login Success vs Failure
 
 ```spl
-index=ftp_security
+index=main
 | eval status=if(searchmatch("LOGIN SUCCESS"),"Success","Failure")
 | chart count over status
 ```
@@ -153,7 +154,7 @@ index=ftp_security
 ### Top Active Users
 
 ```spl
-index=ftp_security
+index=main
 | stats count by username
 | sort - count
 ```
@@ -165,7 +166,7 @@ index=ftp_security
 ### Brute Force Detection Alert
 
 ```spl
-index=ftp_security "LOGIN FAILED"
+index=main "LOGIN FAILED"
 | stats count by src_ip
 | where count > 20
 ```
@@ -205,8 +206,8 @@ index=ftp_security "LOGIN FAILED"
 Splunk-Log-Analysis-Splunk/
 │
 ├── README.md
-├── sample_logs/
-│   └── brute force.log
+├── ftp_logs/
+│   └── brute_force.log
 │
 ├── spl_queries/
 │   ├── failed_logins.spl
